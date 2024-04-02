@@ -1,24 +1,25 @@
 from utils import *
 ini = time.time()
 
-ip_or = "172.17.8.68"
-port_or = "3306"
-bbdd_or = "bbdd_config"
+ip_or = ""
+port_or = ""
+bbdd_or = ""
 engine_or  = mysql_engine(ip_or,port_or,bbdd_or)
 
-ip_des = "172.10.7.224"
-port_des = '3306'
-bbdd_des = "bbdd_config"
+ip_des = ""
+port_des = ''
+bbdd_des = ""
 engine_des = mysql_engine(ip_des,port_des,bbdd_des)
 
-table_name  = 'tb_calendario_day_intervalo_15'
+table_name  = ''
 column_name = '' 
 
 fecha_inicio = ''
 fecha_fin    = ''
 
-sql = f"SELECT * FROM {table_name} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_inicio}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name};"
-logging.getLogger("user").info(f"[ START ETL : {table_name} >> origin: {bbdd_or}@{ip_or}:{port_or} -> target: {bbdd_des}@{ip_des}:{port_des} >> date range: ( {fecha_inicio} - {fecha_fin} ) ]")
+sql = f"SELECT * FROM {table_name} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_fin}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name};"
+logging.getLogger("user").info(f"[ START: origin: {bbdd_or}@{ip_or}:{port_or} -> target: {bbdd_des}@{ip_des}:{port_des} ]")
+logging.getLogger("user").info(f"[ Tabla: {table_name:40} >> date range: ( {fecha_inicio} - {fecha_fin} ) ]")
 try:
     with engine_or.connect() as conn_or:
         df = pd.read_sql(sql,conn_or)

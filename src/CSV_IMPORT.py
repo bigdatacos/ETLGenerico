@@ -1,11 +1,11 @@
 from utils import *
 # from ETL.src.utils import * 
 
-ip   = '172.70.7.61'
-port = "3306"
-bbdd = 'bbdd_cos_bog_gopass'
+ip   = ''
+port = ""
+bbdd = ''
 
-ruta = r'C:\Users\Sebastian.Avila\Downloads\gopass\Plantilla_HC_gopass.csv'
+ruta = r''
 
 connection = mysql_connection(ip,port,bbdd)
 df = pd.read_csv(ruta,delimiter=';',encoding='Latin-1')

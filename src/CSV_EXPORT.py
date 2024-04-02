@@ -2,9 +2,9 @@ from utils import *
 
 ini = time.time()
 
-ip   = '172.17.8.68'
-port = '3306'
-bbdd = 'bbdd_groupcos_dba'
+ip   = ''
+port = ''
+bbdd = ''
 
 engine_or = mysql_engine(ip,port,bbdd)
 
