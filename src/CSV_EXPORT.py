@@ -2,20 +2,20 @@ from utils import *
 
 ini = time.time()
 
-ip   = ''
-port = ''
-bbdd = ''
+ip   = '172.10.7.224'
+port = '3306'
+bbdd = 'bbdd_config'
 
 engine_or = mysql_engine(ip,port,bbdd)
 
 # Ejecutar la consultas
 
-table_name  = 'tb_calendario_day_intervalo_15'
-column_name = '' 
-name_file = f''
-type = "" # TODO: tipo de archivo excel or csv
-fecha_inicio = ''
-fecha_fin    = ''
+table_name  = 'tb_informe_cos_performance'
+column_name = 'FECHA_PROG_INI' 
+name_file = 'perf'
+type = "csv" # TODO: tipo de archivo excel or csv
+fecha_inicio = '2024-04-01'
+fecha_fin    = '2024-04-10'
 
 sql = f"SELECT * FROM {table_name} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_inicio}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name};"
 try:
@@ -24,8 +24,8 @@ try:
     if type == 'excel':
         df.to_excel(os.path.join(path_to_export,f"{name_file}.xlsx"))
     elif type == 'csv':
-        df.to_csv(os.path.join(path_to_export,f"{name_file}.csv"),sep=';')
+        df.to_csv(os.path.join(path_to_export,f"{name_file}.csv"),sep=';',index=False)
 
-    logging.getLogger("user").info(f"[ EXPORT COMPLETE : file:{os.path.join(path_to_export,name_file)} >> {table_name} >> origin: {bbdd}@{ip}:{port} >> date range: ( {fecha_inicio} - {fecha_fin} ) >> {time.time() - ini:.2f} sec >> {df.shape[0]} rows >> {df.shape[1]} columns ]")
+    logging.getLogger("user").info(f"[ EXPORT COMPLETE: {os.path.join(path_to_export,name_file)} >> origin: {bbdd}@{ip}:{port} >> date range: ( {fecha_inicio} - {fecha_fin} ) >> {time.time() - ini:.2f} sec >> {df.shape[0]} rows >> {df.shape[1]} columns ]")
 except Exception as e:
-    logging.getLogger("dev").debug(f"Error : {e}")
+    logging.getLogger("dev").error(f"Error : {e}")
