@@ -6,6 +6,12 @@ config/credentials.py
 config/logger.yml
 log/*.log
 
-export
+export/*.txt
+export/*.csv
+export/*.json
+export/*.zip
+export/*.yml
+export/*.xml
+export/*.xlsx
 
 controllers/etls.py

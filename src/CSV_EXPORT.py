@@ -10,12 +10,12 @@ engine_or = mysql_engine(ip,port,bbdd)
 
 # Ejecutar la consultas
 
-table_name  = 'tb_informe_cos_performance'
-column_name = 'FECHA_PROG_INI' 
-name_file = 'perf'
+table_name  = 'tb_informe_cos_performance_metadata'
+column_name = '' 
+name_file = 'meta'
 type = "csv" # TODO: tipo de archivo excel or csv
-fecha_inicio = '2024-04-01'
-fecha_fin    = '2024-04-10'
+fecha_inicio = ''
+fecha_fin    = ''
 
 sql = f"SELECT * FROM {table_name} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_inicio}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name};"
 try:
