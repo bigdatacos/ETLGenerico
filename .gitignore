@@ -15,3 +15,5 @@ export/*.xml
 export/*.xlsx
 
 controllers/etls.py
+
+data/data_to_run.json

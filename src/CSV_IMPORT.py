@@ -1,17 +1,17 @@
 from utils import *
 # from ETL.src.utils import * 
 
-ip   = '172.17.8.68'
-port = "3306"
-bbdd = 'bbdd_config'
+ip   = ''
+port = ''
+bbdd = ''
 
-ruta = r'Z:\REPORTING\22_Líder_Reporting\Inventario\90_Inventario.xlsx'
+ruta = r''
 file_type='excel' # * excel o csv
 
 if file_type=='csv':
         df = pd.read_csv(ruta,delimiter=';',encoding='Latin-1')
 elif file_type=='excel':
-        df = pd.read_excel(ruta,sheet_name='Inventario')
+        df = pd.read_excel(ruta,sheet_name='Matrices')
 
 # df = df.rename(columns = {
 #        "Number of retries ": "Number of retries"})  
@@ -30,4 +30,4 @@ elif file_type=='excel':
        
 engine_des = mysql_engine(ip,port,bbdd)
 with engine_des.connect() as conn_des:
-        df.to_sql("tb_inventario_rp", conn_des, if_exists='append',index=False,chunksize=100000)
+        df.to_sql("tb_for", conn_des, if_exists='append',index=False,chunksize=100000)

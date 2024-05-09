@@ -8,7 +8,7 @@ def ETLcomplete(cid:int,ip_or:str,port_or:int,bbdd_or:str,ip_des:str,port_des:in
         
         sql = f"SELECT * FROM {table_name} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_fin}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name};"
         logging.getLogger("user").info(f"[ START: origin: {bbdd_or}@{ip_or}:{port_or} -> target: {bbdd_des}@{ip_des}:{port_des} ]")
-        logging.getLogger("user").info(f"[ TABLE: {table_name:40} >> date range: ( {fecha_inicio} - {fecha_fin} ) ]")
+        logging.getLogger("user").info(f"[ TABLE: {table_name:40} >> date range: ( {fecha_inicio if fecha_inicio else '*'} - {fecha_fin if fecha_fin else '*'} ) ]")
 
         try:
             with engine_or.connect() as conn_or:

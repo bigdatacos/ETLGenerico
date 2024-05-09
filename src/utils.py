@@ -13,14 +13,14 @@ import logging.config
 from paths import *
 from datetime import datetime,timedelta
 from urllib.parse import quote
-from sqlalchemy import Table, MetaData, create_engine, Column,text,Engine
+from sqlalchemy import Table, MetaData, create_engine, Column,text,engine
 sys.path.append(path_to_config)
 from credentials import *
 
 with open(os.path.join(path_to_config,"logger.yml")) as f:
     logging.config.dictConfig(yaml.safe_load(f))
 
-def mysql_engine(ip:str,port:str,bbdd:str)->Engine:
+def mysql_engine(ip:str,port:str,bbdd:str)->engine:
     """Creacion de motor de MySQL para generar conexiones y acceso a metadata segun la base de datos obtenida
 
     Args:
