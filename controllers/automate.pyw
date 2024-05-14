@@ -21,12 +21,11 @@ def data_to_run() -> json:
 
 # * Funcion para listar tablas con su respectivo cid 
 def list_cid_tables():
-    print(f"[ {'Table':^35} |{'origen -> destino':^42}|{'CID':^7}]\n[{'-'*88}]")
-    for i in data_to_run():
-        print(f"[ {i['table_name']:35} | {i['ip_or']:12}:{i['port_or']:<5} -> {i['ip_des']:12}:{i['port_des']:<5} | {i['cid']:5} ]")
+    print(f"[ {'Table':^35} |{'origin -> target':^42}| {'Column Type':12} |{'CID':^7}]\n[{'-'*103}]")
+    [ print(f"[ {i['table_name']:35} | {i['ip_or']:>12}:{i['port_or']:<5} -> {i['ip_des']:>12}:{i['port_des']:<5} | {i['column_type']:^12} | {i['cid']:^5} ]") for i in data_to_run()]
 
 # * Funcion para obtener el ultimo registro filtrando dentro de una tabla y columna especifica
-def get_last_id_date(table_name:str, column_name:str, ip:str,port:int,bbdd:str) -> str:
+def get_last_id_date(table_name:str, column_name:str, column_type:str, ip:str,port:int,bbdd:str) -> str:
     """ Obtiene el ultimo registro (Maximo) almacenado dentro de una tabla especifica filtrando por la columna asignada 
 
     Args:
@@ -44,12 +43,22 @@ def get_last_id_date(table_name:str, column_name:str, ip:str,port:int,bbdd:str) 
             logging.getLogger("user").debug(sql)
             df = pd.read_sql(sql,conn)
         if not df.empty:
-            last_row = df.iloc[0,0] - timedelta(hours = 2) if column_name !='id' else df.iloc[0,0]
+            if column_type == 'datetime':
+                last_row = df.iloc[0,0] - timedelta(hours = 2)
+            elif column_type == 'date':
+                last_row = df.iloc[0,0] - timedelta(days = 1)
+            else:
+                last_row = df.iloc[0,0]
             return last_row
         else:
-            logging.getLogger("user").debug(f"{table_name}  vacia")
-            last_row = 1 if column_name == 'id' else '2024-04-15 00:00:00'
+            if column_type == 'datetime':
+                last_row = '2024-04-15 00:00:00'
+            elif column_type == 'date':
+                last_row = '2024-04-15'
+            else:
+                last_row = 1
             return last_row
+        
     except Exception as e:
         logging.getLogger("dev").error(f"{table_name} -> {e}")
         last_row = 1 if column_name == 'id' else '2024-04-15 00:00:00'
@@ -63,16 +72,24 @@ def exec_by_cid():
     cid = int(sys.argv[2]) if len(sys.argv) > 2 else None
     for i in data_to_run():
         if i["cid"] == cid:
-            fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else get_last_id_date(i['table_name'],i['column_name'],i['ip_des'],i['port_des'],i['bbdd_des'])
-            fecha_fin = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            ETLcomplete(**i,fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
+            if i["column_type"] == 'datetime':
+                fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
+                fecha_fin = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
+                fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
+            ETLcomplete(i['cid'],i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)    
 
 # * Funcion de ejecucion de distro
 def load_etl():
     for i in data_to_run():
-        fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else get_last_id_date(i['table_name'],i['column_name'],i['ip_des'],i['port_des'],i['bbdd_des'])
-        fecha_fin = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        ETLcomplete(**i,fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
+        if i["column_type"] == 'datetime':
+            fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
+            fecha_fin = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
+            fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
+        ETLcomplete(i['cid'],i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
 
 dict_actions = {
     '--help': show_help,
