@@ -6,7 +6,7 @@ from ETL import *
 
 # * Funcion de mostrar ayuda
 def show_help():
-    with open(os.path.join(path_to_share,"documentation.txt"),'r') as file:
+    with open(os.path.join(path_to_docs,"documentation.txt"),'r') as file:
         print(file.read())
 
 # * Funcion para leer el archivo .json con las tablas a ejecutar
@@ -52,9 +52,9 @@ def get_last_id_date(table_name:str, column_name:str, column_type:str, ip:str,po
             return last_row
         else:
             if column_type == 'datetime':
-                last_row = '2024-04-15 00:00:00'
+                last_row = '2024-04-01 00:00:00'
             elif column_type == 'date':
-                last_row = '2024-04-15'
+                last_row = '2024-04-01'
             else:
                 last_row = 1
             return last_row
@@ -75,9 +75,12 @@ def exec_by_cid():
             if i["column_type"] == 'datetime':
                 fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
                 fecha_fin = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            else:
+            elif i["column_type"] in  ['date','id']:
                 fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
-                fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
+                if i["column_type"] == 'id':
+                    fecha_fin = sys.argv[4] if len(sys.argv) > 4 else 50000
+                else:
+                    fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
             ETLcomplete(i['cid'],i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)    
 
 # * Funcion de ejecucion de distro
@@ -86,7 +89,7 @@ def load_etl():
         if i["column_type"] == 'datetime':
             fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
             fecha_fin = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        else:
+        elif i["column_type"] == 'date':
             fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else get_last_id_date(i['table_name'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
             fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
         ETLcomplete(i['cid'],i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
