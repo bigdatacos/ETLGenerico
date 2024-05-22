@@ -19,8 +19,8 @@ from credentials import *
 
 with open(os.path.join(path_to_config,"logger.yml")) as f:
     logging.config.dictConfig(yaml.safe_load(f))
-
-def mysql_engine(ip:str,port:str,bbdd:str)->engine:
+  
+def mysql_engine(ip:str,port:str,bbdd:str)-> engine:
     """Creacion de motor de MySQL para generar conexiones y acceso a metadata segun la base de datos obtenida
 
     Args:
@@ -31,5 +31,4 @@ def mysql_engine(ip:str,port:str,bbdd:str)->engine:
     Returns:
         Engine: Motor de MySQL. Solo se accede a la metadata de la base de datos ingresada.
     """    
-    return  create_engine(f'mysql+pymysql://{user_mysql}:{quote(pswd_mysql)}@{ip}:{port}/{bbdd}',pool_recycle=9600,isolation_level="AUTOCOMMIT")
-    
+    return  create_engine(f'mysql+pymysql://{dict_user.get(ip)}:{quote(dict_pwd.get(ip))}@{ip}:{port}/{bbdd}',pool_recycle=9600,isolation_level="AUTOCOMMIT")

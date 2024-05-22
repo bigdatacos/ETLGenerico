@@ -1,2 +1,10 @@
-user_mysql = ""
-pswd_mysql = ""
+dict_user = {
+    '' : '',
+    '' : ''
+}
+dict_pwd = {
+    '' : '',
+    ''  : ''
+}
+
+dict_serv_bigdata = []
