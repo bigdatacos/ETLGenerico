@@ -28,7 +28,6 @@ class the_etl:
             
             sql = f"SELECT * FROM {table_name_or} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_fin}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name_or};"
             logging.getLogger("user").debug(sql)
-            logging.getLogger("user").info(f"[ START TIME: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ]")
             logging.getLogger("user").info(f"[ START: origin: {bbdd_or}@{ip_or}:{port_or} -> target: {bbdd_des}@{ip_des}:{port_des} ]")
             logging.getLogger("user").info(f"[ TABLE: {table_name_or} >> column '{column_name}' range: ( {fecha_inicio if fecha_inicio else '*'} - {fecha_fin if fecha_fin else '*'} ) ]")
 
