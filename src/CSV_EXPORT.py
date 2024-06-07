@@ -6,26 +6,25 @@ ip   = ''
 port = ''
 bbdd = ''
 
+type_file = ''
+
 engine_or = mysql_engine(ip,port,bbdd)
 
-# Ejecutar la consultas
+nombre_archivo = ''
+with open(os.path.join(path_to_sql,"query_to_export.sql"), 'r',encoding='utf-8') as file:
+    sql = file.read()
+    sql = sql.format(ip=ip)
 
-table_name  = ''
-column_name = ''
-type = "csv" # TODO: tipo de archivo excel or csv
-fecha_inicio = ''
-fecha_fin    = ''
 
-sql = f"SELECT * FROM {table_name} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_inicio}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name};"
-logging.getLogger("user").info(f"[ {'EXPORTING':15}: {os.path.join(path_to_export,f"{table_name}_{fecha_inicio}_{fecha_fin}")} >> origin: {bbdd}@{ip}:{port} >> date range: ( {fecha_inicio} - {fecha_fin} ) ]")
+logging.getLogger("user").info(f"[ {'EXPORTING':}: {os.path.join(path_to_export,nombre_archivo)} >> origin: {bbdd}@{ip}:{port} ]")
 try:
     with engine_or.connect() as conn:
-        df  = pd.read_sql(sql,conn)
-    if type == 'excel':
-        df.to_excel(os.path.join(path_to_export,f"{table_name}_{fecha_inicio}_{fecha_fin}.xlsx"))
-    elif type == 'csv':
-        df.to_csv(os.path.join(path_to_export,f"{table_name}_{fecha_inicio}_{fecha_fin}.csv"),sep=';',index=False)
+        df  = pd.read_sql(text(sql),conn)
+    if type_file == 'excel':
+        df.to_excel(os.path.join(path_to_export,f"{nombre_archivo}.xlsx"))
+    elif type_file == 'csv':
+        df.to_csv(os.path.join(path_to_export,f"{nombre_archivo}.csv"),sep=';',index=False)
 
-    logging.getLogger("user").info(f"[ EXPORT COMPLETE: {os.path.join(path_to_export,f"{table_name}_{fecha_inicio}_{fecha_fin}")} >> origin: {bbdd}@{ip}:{port} >> date range: ( {fecha_inicio} - {fecha_fin} ) >> {time.time() - ini:.2f} sec >> {df.shape[0]} rows >> {df.shape[1]} columns ]")
-except Exception as e:
+    logging.getLogger("user").info(f"[ EXPORT COMPLETE: {os.path.join(path_to_export,nombre_archivo)} >> origin: {bbdd}@{ip}:{port} >> {time.time() - ini:.2f} sec >> {df.shape[0]} rows >> {df.shape[1]} columns ]")
+except ValueError as e:
     logging.getLogger("dev").error(f"Error : {e}")

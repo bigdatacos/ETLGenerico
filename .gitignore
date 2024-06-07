@@ -19,3 +19,5 @@ controllers/etls.py
 data/data_to_run.json
 data/data_to_run_backup.json
 data/data_foreign.json
+
+sql/query_to_export.sql

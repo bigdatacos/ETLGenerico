@@ -81,7 +81,7 @@ class the_etl:
                 if column_type == 'datetime':
                     last_row = df.iloc[0,0] - timedelta(hours = 2)
                 elif column_type == 'date':
-                    last_row = df.iloc[0,0] - timedelta(days = 1)
+                    last_row = df.iloc[0,0] - timedelta(days = 7)
                 else:
                     last_row = df.iloc[0,0]
                 return last_row

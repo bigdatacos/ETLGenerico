@@ -1,12 +1,12 @@
 from utils import *
-# from ETL.src.utils import * 
 
 ip   = ''
 port = ''
 bbdd = ''
 
-ruta = r''
-file_type='excel' # * excel o csv
+ruta       = r''
+file_type  ='csv' # * excel o csv
+table_name = ''
 
 if file_type=='csv':
         df = pd.read_csv(ruta,delimiter=';',encoding='Latin-1')
@@ -30,4 +30,4 @@ elif file_type=='excel':
        
 engine_des = mysql_engine(ip,port,bbdd)
 with engine_des.connect() as conn_des:
-        df.to_sql("tb_for", conn_des, if_exists='append',index=False,chunksize=100000)
+        df.to_sql(table_name, conn_des, if_exists='append',index=False,chunksize=100000)
