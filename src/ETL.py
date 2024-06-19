@@ -81,7 +81,7 @@ class the_etl:
                 if column_type == 'datetime':
                     last_row = df.iloc[0,0] - timedelta(hours = 2)
                 elif column_type == 'date':
-                    last_row = df.iloc[0,0] - timedelta(days = 7)
+                    last_row = df.iloc[0,0] - timedelta(days = 30)
                 else:
                     last_row = df.iloc[0,0]
                 return last_row
@@ -181,16 +181,20 @@ class the_execution:
     # * Funcion de ejecucion de distro
     def exec_data_auto():
         for i in the_execution.data_to_run("data_to_run"):
-            if i["column_type"] == 'datetime':
-                fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
-                fecha_fin    = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            elif i["column_type"] in ['date','id']:
-                fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
-                if i["column_type"] == 'id':
-                    fecha_fin = sys.argv[4] if len(sys.argv) > 4 else 50000
-                else:
-                    fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
-            the_etl.ETLcomplete(i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name_or'],i['table_name_des'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
+            try:
+                if i["column_type"] == 'datetime':
+                    fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
+                    fecha_fin    = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                elif i["column_type"] in ['date','id']:
+                    fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
+                    if i["column_type"] == 'id':
+                        fecha_fin = sys.argv[4] if len(sys.argv) > 4 else 50000
+                    else:
+                        fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
+                the_etl.ETLcomplete(i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name_or'],i['table_name_des'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
+            except ValueError as e:
+                logging.getLogger("dev").error(f"{i['ip_des']} >> {i['table_name_or']} >> {e}")
+                continue
 
     dict_actions = {
         '--help'         : show_help,               # TODO: Muestra la ayuda para ejecucion 
@@ -210,6 +214,21 @@ class the_execution:
     # * Main
     def execution(action):
         if action in the_execution.dict_actions:
-            [ func() for func in the_execution.dict_actions[action] ] if isinstance(the_execution.dict_actions[action], list) else the_execution.dict_actions[action]()
+            if isinstance(the_execution.dict_actions[action], list):
+                for func in the_execution.dict_actions[action]:
+                    try:
+                        func()
+                    except ValueError as e:
+                        logging.getLogger("user").debug(e)
+                    finally:
+                        continue
+            else:
+                try:
+                    the_execution.dict_actions[action]()
+                except ValueError as e:
+                    logging.getLogger("user").debug(e)
+                finally:
+                    pass
+
         else:
             logging.getLogger("dev").error("Unknown action provided")
