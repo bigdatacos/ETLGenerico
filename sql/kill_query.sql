@@ -1,0 +1,11 @@
+SELECT 
+    t.PROCESSLIST_ID as id,
+    IF(NAME = 'thread/sql/event_scheduler','event_scheduler',t.PROCESSLIST_USER) as user
+FROM
+    performance_schema.threads t
+        LEFT OUTER JOIN
+    performance_schema.session_connect_attrs a ON t.processlist_id = a.processlist_id
+        AND (a.attr_name IS NULL
+        OR a.attr_name = 'program_name')
+WHERE
+    t.PROCESSLIST_USER <> '{usuario}'

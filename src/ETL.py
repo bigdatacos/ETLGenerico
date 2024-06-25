@@ -25,7 +25,6 @@ class the_etl:
         try:
             engine_or  = mysql_engine(ip_or,port_or,bbdd_or)
             engine_des = mysql_engine(ip_des,port_des,bbdd_des)
-            
             sql = f"SELECT * FROM {table_name_or} WHERE `{column_name}` BETWEEN '{fecha_inicio}' AND '{fecha_fin}';" if fecha_inicio and fecha_fin else f"SELECT * FROM {table_name_or};"
             logging.getLogger("user").debug(sql)
             logging.getLogger("user").info(f"[ START: origin: {bbdd_or}@{ip_or}:{port_or} -> target: {bbdd_des}@{ip_des}:{port_des} ]")
@@ -45,6 +44,8 @@ class the_etl:
                     tabla_real.create(bind = engine_des,checkfirst=True)
                     tmp.drop(bind = engine_des,checkfirst=True)
                     tmp.create(bind = engine_des)
+                    logging.getLogger("user").debug(f"Matando querys toxicas")
+                    the_etl.kill_processes(ip_des,port_des,bbdd_des,table_name_des)
                     with engine_des.connect() as conn_des:
                         logging.getLogger("user").debug(f"Insertando datos en tabla temporal: {table_name_des}_tmp")
                         df.to_sql(f"{table_name_des}_tmp", conn_des, if_exists='append',index=False,chunksize=100000)
@@ -101,6 +102,37 @@ class the_etl:
             return last_row
         finally:    
             logging.getLogger("user").debug(f"Last row in {ip} -> {table_name} >> {last_row}")
+
+    # * Funcion para matar querys que impiden la ejecucion del replace sobre una tabla
+    def kill_processes(ip_des,port_des,bbdd_des,table_name):
+        with open(os.path.join(path_to_sql,"kill_query.sql"),'r') as f:
+            kill = f.read()
+            kill_query = kill.format(usuario=dict_user.get(ip_des))
+        try:
+            engine_destino = mysql_engine(ip_des,port_des,bbdd_des)
+            with engine_destino.connect() as conn_des:
+                df = pd.read_sql(text(kill_query),conn_des)
+            ids = df['id'].tolist()                    
+            for i in ids:
+                with engine_destino.connect() as conn_des:
+                    try:
+                        conn_des.execute(text(f"KILL {i}"))
+                    except:
+                        pass
+                logging.getLogger("dev").error(f"Matando : {i}")
+        
+        except ValueError as e:
+            logging.getLogger("dev").error(e)
+            with engine_destino.connect() as conn_des:
+                df = pd.read_sql(text(kill_query),conn_des)
+            ids = df['id'].tolist()                    
+            for i in ids:
+                with engine_destino.connect() as conn_des:
+                    try:
+                        conn_des.execute(text(f"KILL {i}"))
+                    except:
+                        pass
+                logging.getLogger("dev").error(f"Matando : {i}")
 
 class the_execution:
 
