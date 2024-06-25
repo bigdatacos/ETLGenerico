@@ -107,7 +107,7 @@ class the_etl:
     def kill_processes(ip_des,port_des,bbdd_des,table_name):
         with open(os.path.join(path_to_sql,"kill_query.sql"),'r') as f:
             kill = f.read()
-            kill_query = kill.format(usuario=dict_user.get(ip_des))
+            kill_query = kill.format(usuario=dict_user.get(ip_des),table_name=table_name)
         try:
             engine_destino = mysql_engine(ip_des,port_des,bbdd_des)
             with engine_destino.connect() as conn_des:
