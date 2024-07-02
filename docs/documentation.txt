@@ -1,16 +1,14 @@
 usage: [-opt] [fecha-inicio] [fecha-fin]
 
-Script para ejecutar laETL
+Script para ejecutar la ETL generica para espejos de tablas entre instancias MySQL del area Big Data
 
 help options:
   -h,     --help          muestra ayuda sobre ejecucion
   -l,     --list          lista las tablas con su respectivo cid y tipo de dato de la columna filtro
-  -lf,    --list-foreign  lista las tablas que se han migrado en el data_foreign.json
 
 positional arguments (opt):
   -exe,   --execute       ejecuta todos los elementos dentro del data_to_run.json
   -c,     --cid           ejecuta el elemento respectivo al cid indicado
-  -cf,    --cid-foreign   ejecuta el elemento respectivo al cid indicado del data_foreign.json
 
 optional arguments:
     fecha-inicio    fecha de inicio de ejecucion 

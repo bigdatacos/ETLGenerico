@@ -13,8 +13,6 @@ engine_or = mysql_engine(ip,port,bbdd)
 nombre_archivo = ''
 with open(os.path.join(path_to_sql,"query_to_export.sql"), 'r',encoding='utf-8') as file:
     sql = file.read()
-    sql = sql.format(ip=ip)
-
 
 logging.getLogger("user").info(f"[ {'EXPORTING':}: {os.path.join(path_to_export,nombre_archivo)} >> origin: {bbdd}@{ip}:{port} ]")
 try:

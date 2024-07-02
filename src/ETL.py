@@ -155,12 +155,7 @@ class the_execution:
     def list_cid_tables():
         print(f"[ {'Table':^35} |{'origin (IP:Port) -> target (IP:Port)':^42}| {'Column Type':12} |{'CID':^7}]\n[{'-'*103}]")
         [ print(f"[ {i['table_name_or']:35} | {i['ip_or']:>12}:{i['port_or']:<5} -> {i['ip_des']:>12}:{i['port_des']:<5} | {i['column_type']:^12} | {i['cid']:^5} ]") for i in the_execution.data_to_run("data_to_run")]
-
-    # * Funcion para listar tablas con su respectivo cid para las etl externas 
-    def list_cid_tables_foreign():
-        print(f"[ {'Table':^45} |{'origin (IP:Port) -> target (IP:Port)':^42}| {'Column Type':12} |{'CID':^7}]\n[{'-'*113}]")
-        [ print(f"[ {i['table_name_or'] if len(i['table_name_or']) > 0 else 'None' :45} | {i['ip_or'] if len(i['ip_or']) > 0 else 'None':>12}:{i['port_or'] if len(i['port_or']) > 0 else 'None':<5} -> {i['ip_des']if len(i['ip_des']) > 0 else 'None':>12}:{i['port_des']if len(i['port_des']) > 0 else 'None':<5} | {i['column_type']if len(i['column_type']) > 0 else 'None':^12} | {i['cid']if len(str(i['cid'])) > 0 else 'None':^5} ]") for i in the_execution.data_to_run("data_foreign")]
-
+ 
     # * Funcion de ejecucion mediante cid
     def exec_by_cid():
         cid = int(sys.argv[2]) if len(sys.argv) > 2 else None
@@ -176,39 +171,6 @@ class the_execution:
                     else:
                         fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
                 the_etl.ETLcomplete(i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name_or'],i['table_name_des'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
-
-    # * Funcion de ejecucion mediante cid para los datos en data_foreign o etl externas
-    def exec_by_cid_foreign():
-        cid = int(sys.argv[2]) if len(sys.argv) > 2 else None
-        for i in the_execution.data_to_run("data_foreign"):
-            if i["cid"] == cid:
-                if i["column_type"] == 'datetime':
-                    fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
-                    fecha_fin    = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                elif i["column_type"] in ['date','id']:
-                    fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
-                    if i["column_type"] == 'id':
-                        fecha_fin = sys.argv[4] if len(sys.argv) > 4 else fecha_inicio + 300
-                    else:
-                        fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
-                else:
-                    fecha_inicio = None
-                    fecha_fin    = None
-                the_etl.ETLcomplete(i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name_or'],i['table_name_des'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
-
-    # * Funcion para ejecutar etl manual a partir del archivo data_foreign.json
-    def exec_foreign():
-        for i in the_execution.data_to_run("data_foreign"):
-            if i["column_type"] == 'datetime':
-                fecha_inicio = sys.argv[3] + " " + sys.argv[4] if len(sys.argv) > 4 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
-                fecha_fin    = sys.argv[5] + " " + sys.argv[6] if len(sys.argv) > 6 else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            elif i["column_type"] in ['date','id']:
-                fecha_inicio = sys.argv[3] if len(sys.argv) > 3 else the_etl.get_last_row(i['table_name_des'],i['column_name'],i['column_type'],i['ip_des'],i['port_des'],i['bbdd_des'])
-                if i["column_type"] == 'id':
-                    fecha_fin = sys.argv[4] if len(sys.argv) > 4 else 50000
-                else:
-                    fecha_fin = sys.argv[4] if len(sys.argv) > 4 else datetime.now().strftime("%Y-%m-%d")
-            the_etl.ETLcomplete(i['ip_or'],i['port_or'],i['bbdd_or'],i['ip_des'],i['port_des'],i['bbdd_des'],i['table_name_or'],i['table_name_des'],i['column_name'],fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
 
     # * Funcion de ejecucion de distro
     def exec_data_auto():
@@ -228,22 +190,19 @@ class the_execution:
                 logging.getLogger("dev").error(f"{i['ip_des']} >> {i['table_name_or']} >> {e}")
                 continue
 
+    # * Diccionario de funciones disponibles para ejecucion del proceso
     dict_actions = {
         '--help'         : show_help,               # TODO: Muestra la ayuda para ejecucion 
         '-h'             : show_help,               # * """"""
         '--list'         : list_cid_tables,         # TODO: lista las tablas que se estan migrando automaticamente
         '-l'             : list_cid_tables,         # * """"""
-        '--list-foreign' : list_cid_tables_foreign, # TODO: lista las tablas que se han migrado manualmente, si se mantiene el historico
-        '-lf'            : list_cid_tables_foreign, # * """"""
         '--cid'          : exec_by_cid,             # TODO: ejecuta una tabla en especifico de las tablas que estan automaticas cid
         '-c'             : exec_by_cid,             # * """"""
-        '--cid-foreign'  : exec_by_cid_foreign,     # TODO: ejecuta una tabla en especifico de las etl externas(data_foreign)
-        '-cf'            : exec_by_cid_foreign,     # * """"""
         '-exe'           : exec_data_auto,          # TODO: execute
         '--execute'      : exec_data_auto           # * """"""
     }
 
-    # * Main
+    # * Main de ejecucion dependiente del diccionario
     def execution(action):
         if action in the_execution.dict_actions:
             if isinstance(the_execution.dict_actions[action], list):
